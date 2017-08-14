@@ -4,7 +4,7 @@ using System.Linq;
 
 public static class BookStore
 {
-    private static readonly Dictionary<int, double> BUNDLE_DISCOUNTS_BY_SIZE = new Dictionary<int, double>
+    static readonly Dictionary<int, double> DISCOUNT_RATES_BY_BUNDLE_SIZE = new Dictionary<int, double>
     {
         [1] = 0d,
         [2] = .05d,
@@ -12,36 +12,52 @@ public static class BookStore
         [4] = .2d,
         [5] = .25d
     };
-    
+
+    /// <summary>
+    /// Calculates the minimum price for the books supplied
+    /// </summary>
+    /// <param name="books"></param>
+    /// <returns></returns>
     public static double Total(IEnumerable<int> books)
     {
-        double total = 0;
-        foreach (var bundle in SplitIntoBundles(books, BUNDLE_DISCOUNTS_BY_SIZE.Keys.Max()))
-        {
-            total += (8d * bundle.Count) * (1d - BUNDLE_DISCOUNTS_BY_SIZE[bundle.Count]);
-        }
-        return total;
+        var cart = books
+            .GroupBy(b => b)
+            .ToDictionary(g => g.Key, g => g.Count());
+        return Total(cart, 0);
     }
 
-    private static IEnumerable<IList<int>> SplitIntoBundles(IEnumerable<int> books, int maxBundleSize)
+    private static double Total(Dictionary<int, int> cart, double initialPrice)
     {
-        var bookGroups = books.GroupBy(b => b).Select(g => new Queue<int>(g)).ToList();
-        while (bookGroups.Count > 0)
+        if (cart.Count == 0)
         {
-            var bundleSize = Math.Min(maxBundleSize, bookGroups.Count);
-            var bundle = new int[bundleSize];
-            var iOffset = 0;
-            for (var i = 0; i < bundleSize; i++)
+            return initialPrice;
+        }
+        
+        var minPrice = double.MaxValue;
+        for (var i = 0; i < cart.Count; i++)
+        {
+            var bundleSize = i + 1;
+
+            // Assume a bundle of size {bundleSize}. Create a new dictionary of 
+            // books representing the removal of these books from the cart
+            var nextStep = cart.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            foreach (var bookToRemoveFromNewCart in cart.Keys.Take(bundleSize))
             {
-                var groupIdx = i + iOffset;
-                bundle[i] = bookGroups[groupIdx].Dequeue();
-                if (bookGroups[groupIdx].Count == 0)
+                if (nextStep[bookToRemoveFromNewCart] == 1)
                 {
-                    bookGroups.RemoveAt(groupIdx);
-                    iOffset--;
+                    nextStep.Remove(bookToRemoveFromNewCart);
+                }
+                else
+                {
+                    nextStep[bookToRemoveFromNewCart]--;
                 }
             }
-            yield return bundle;
+
+            // Calculate the base price given this new bundle we have created
+            var nextStepInitialPrice = initialPrice + ((bundleSize) * 8 * (1 - DISCOUNT_RATES_BY_BUNDLE_SIZE[bundleSize]));
+            minPrice = Math.Min(minPrice, Total(nextStep, nextStepInitialPrice));
         }
+
+        return minPrice;
     }
 }

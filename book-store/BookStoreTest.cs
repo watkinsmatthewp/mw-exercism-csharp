@@ -60,35 +60,35 @@ public class BookStoreTest
         Assert.Equal(51.2, BookStore.Total(input));
     }
 
-    [Fact(Skip = "Remove to run test")]
+    [Fact]
     public void Group_of_four_plus_group_of_two_is_cheaper_than_two_groups_of_three()
     {
         var input = new[] { 1, 1, 2, 2, 3, 4 };
         Assert.Equal(40.8, BookStore.Total(input));
     }
 
-    [Fact(Skip = "Remove to run test")]
+    [Fact]
     public void Two_each_of_first_4_books_and_1_copy_each_of_rest()
     {
         var input = new[] { 1, 1, 2, 2, 3, 3, 4, 4, 5 };
         Assert.Equal(55.6, BookStore.Total(input));
     }
 
-    [Fact(Skip = "Remove to run test")]
+    [Fact]
     public void Two_copies_of_each_book()
     {
         var input = new[] { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5 };
         Assert.Equal(60, BookStore.Total(input));
     }
 
-    [Fact(Skip = "Remove to run test")]
+    [Fact]
     public void Three_copies_of_first_book_and_2_each_of_remaining()
     {
         var input = new[] { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1 };
         Assert.Equal(68, BookStore.Total(input));
     }
 
-    [Fact(Skip = "Remove to run test")]
+    [Fact]
     public void Three_each_of_first_2_books_and_2_each_of_remaining_books()
     {
         var input = new[] { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1, 2 };
